@@ -14,7 +14,7 @@ class InfoMessage:
         self.calories = calories
 
     def get_message(self) -> str:
-        """Получить информационное сообщение"""
+        """Получить информационное сообщение."""
 
         return (f'Тип тренировки: {self.training_type}; '
                 f'Длительность: {self.duration:.3f} ч.; '
@@ -49,10 +49,11 @@ class Training:
 
         return self.get_distance() / self.duration
 
-    def get_spent_calories(self) -> float:  # Вот здесь ругается, что
-        # где-то в spent_calories None приходит, но при этом все
-        # работает как часы и тесты проходятся. Решил не трогать.
+    def get_spent_calories(self) -> float:  # Спасибо за совет!
         """Получить количество затраченных калорий."""
+
+        raise NotImplementedError(
+            'Определите get_spent_calories в %s.' % (self.__class__.__name__))
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -117,11 +118,6 @@ class Swimming(Training):
         self.length_pool = length_pool
         self.count_pool = count_pool
 
-    def get_distance(self) -> float:
-        """Получить дистанцию в км."""
-
-        return self.action * self.LEN_STEP / self.M_IN_KM
-
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость."""
 
@@ -141,7 +137,11 @@ def read_package(workout_type: str, data: list) -> Training:
     code_training = {'SWM': Swimming,
                      'RUN': Running,
                      'WLK': SportsWalking}
-    return (code_training[workout_type](*data))
+
+    if workout_type not in code_training:
+        raise ValueError('Внимание! Такой тренировки не существует!')
+
+    return code_training[workout_type](*data)
 
 
 def main(training: Training) -> None:
